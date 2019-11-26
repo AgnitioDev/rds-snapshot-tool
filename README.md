@@ -1,4 +1,4 @@
-# Snapshot Tool for Amazon RDS
+# Snapshot Tool for Amazon RDS - Terraform version
 
 The Snapshot Tool for RDS automates the task of creating manual snapshots, copying them into a different account and a different region, and deleting them after a specified number of days. It also allows you to specify the backup schedule (at what times and how often) and a retention period in days. This version will work with all Amazon RDS instances except Amazon Aurora. For a version that works with Amazon Aurora, please visit the [Snapshot Tool for Amazon Aurora](https://github.com/awslabs/aurora-snapshot-tool).
 
@@ -68,7 +68,7 @@ There are two sets of Lambda Step Functions that take regular snapshots and copy
 
 ### In the Source Account
 
-A CloudWatch Event is scheduled to trigger Lambda Step Function State Machine named `stateMachineTakeSnapshotsRDS`. That state machine invokes a function named `lambdaTakeSnapshotsRDS`. That function triggers a snapshot and applies some standard tags. It matches RDS instances using a regular expression on their names. 
+A CloudWatch Event is scheduled to trigger Lambda Step Function State Machine named `stateMachineTakeSnapshotsRDS`. That state machine invokes a function named `lambdaTakeSnapshotsRDS`. That function triggers a snapshot and applies some standard tags. It matches RDS instances using a regular expression on their names.
 
 There are two other state machines and lambda functions. The `statemachineShareSnapshotsRDS` looks for new snapshots created by the `lambdaTakeSnapshotsRDS` function. When it finds them, it shares them with the destination account. This state machine is, by default, run every 10 minutes. (To change it, you need to change the `ScheduleExpression` property of the `cwEventShareSnapshotsRDS` resource in `snapshots_tool_rds_source.json`). If it finds a new snapshot that is intended to be shared, it shares the snapshot.
 
@@ -85,7 +85,7 @@ The other state machine is just like the corresponding state machine and functio
 
 As published, these CloudFormation templates will pull the zip files for the Lambda functions from an AWS-owned and operated S3 bucket. You can also choose to build from source and deploy to your own bucket in your own account. To build, you need to be on a unix-like system (e.g., macOS or some flavour of Linux) and you need to have `make` and `zip`.
 
-1. Create an S3 bucket to hold the Lambda function zip files. The bucket must be in the same region where the Lambda functions will run. And the Lambda functions must run in the same region as the RDS instances. 
+1. Create an S3 bucket to hold the Lambda function zip files. The bucket must be in the same region where the Lambda functions will run. And the Lambda functions must run in the same region as the RDS instances.
 
 1. Clone the repository
 
@@ -97,7 +97,7 @@ As published, these CloudFormation templates will pull the zip files for the Lam
 
 ## Updating
 
-This tool is fundamentally stateless. The state is mainly in the tags on the snapshots themselves and the parameters to the CloudFormation stack. If you make changes to the parameters or make changes to the Lambda function code, it is best to delete the stack and then launch the stack again. 
+This tool is fundamentally stateless. The state is mainly in the tags on the snapshots themselves and the parameters to the CloudFormation stack. If you make changes to the parameters or make changes to the Lambda function code, it is best to delete the stack and then launch the stack again.
 
 ## Authors
 
