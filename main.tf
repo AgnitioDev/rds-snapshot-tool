@@ -14,9 +14,9 @@ locals {
       ap-southeast-1 = "snapshots-tool-rds-ap-southeast-1-real"
   }
 
-  lambda-take-snapshots-aurora_name = "${var.name}-lambda-takesnapshots-aurora"
-  lambda-share-snapshots-aurora_name = "${var.name}-lambda-sharesnapshots-aurora"
-  lambda-delete-snapshots-aurora_name = "${var.name}-lambda-deletesnapshots-aurora"
+  lambda-take-snapshots-aurora_name = "${var.name}-lambda-take-snapshots-aurora"
+  lambda-share-snapshots-aurora_name = "${var.name}-lambda-share-snapshots-aurora"
+  lambda-delete-snapshots-aurora_name = "${var.name}-lambda-delete-snapshots-aurora"
 }
 
 # Get current region
