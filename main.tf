@@ -14,9 +14,9 @@ locals {
       ap-southeast-1 = "snapshots-tool-rds-ap-southeast-1-real"
   }
 
-  lambda-take-snapshots-aurora_name = "${var.name}-lambda-take-snapshots-aurora"
-  lambda-share-snapshots-aurora_name = "${var.name}-lambda-share-snapshots-aurora"
-  lambda-delete-snapshots-aurora_name = "${var.name}-lambda-delete-snapshots-aurora"
+  lambda-take-snapshots-aurora_name = "${var.name}-lambda-take-snapshots"
+  lambda-share-snapshots-aurora_name = "${var.name}-lambda-share-snapshots"
+  lambda-delete-snapshots-aurora_name = "${var.name}-lambda-delete-snapshots"
 }
 
 # Get current region
@@ -374,7 +374,7 @@ resource "aws_iam_role_policy_attachment" "iam_role-policy-atachement-state-snap
 }
 
 resource "aws_sfn_state_machine" "statemachine-take-snapshots-aurora" {
-  name = "${var.name}-statemachine-takesnapshots-aurora"
+  name = "${var.name}-statemachine-take-snapshots"
   role_arn = aws_iam_role.iam_role_state_snapshots_aurora.arn
   definition = <<EOF
 {
@@ -407,7 +407,7 @@ EOF
 resource "aws_sfn_state_machine" "statemachine-share-snapshots-aurora" {
   count = var.sharesnapshots == "true" ? 1 : 0
 
-  name = "${var.name}-statemachine-sharesnapshots-aurora"
+  name = "${var.name}-statemachine-share-snapshots"
   role_arn = aws_iam_role.iam_role_state_snapshots_aurora.arn
   definition = <<EOF
 {
@@ -440,7 +440,7 @@ EOF
 resource "aws_sfn_state_machine" "statemachine-delete-snapshots-aurora" {
   count = var.delete_oldsnapshots == "true" ? 1 : 0
 
-  name = "${var.name}-statemachine-delete-snapshots-aurora"
+  name = "${var.name}-statemachine-delete-snapshots"
   role_arn = aws_iam_role.iam_role_state_snapshots_aurora.arn
   definition = <<EOF
 {
@@ -482,7 +482,7 @@ data "aws_iam_policy_document" "iam_policy_execute_lambda_assume_role" {
 }
 
 resource "aws_iam_role" "iam_role_execute_lambda_aurora" {
-  name = "${var.name}-iam_role_execute_snapshots_aurora"
+  name = "${var.name}-iam-role-execute-snapshots"
   assume_role_policy = data.aws_iam_policy_document.iam_policy_execute_lambda_assume_role.json
 
   tags = var.tags
@@ -500,7 +500,7 @@ data "aws_iam_policy_document" "iam_policy_execute_lambda_aurora" {
 }
 
 resource "aws_iam_policy" "iam-policy-execute-lambda-aurora" {
-  name = "${var.name}-iam-policy-execute-lambda-aurora"
+  name = "${var.name}-iam-policy-execute-lambda"
   path = "/"
   policy = data.aws_iam_policy_document.iam_policy_execute_lambda_aurora.json
 
@@ -513,7 +513,7 @@ resource "aws_iam_role_policy_attachment" "iam_role-policy-atachement-execute_la
 }
 
 resource "aws_cloudwatch_event_rule" "cloudwatch_event_rule-backup" {
-  name        = "${var.name}-cloudwatch_event_rule-backup"
+  name        = "${var.name}-cloudwatch-event-rule-backup"
   description = "Triggers the ${aws_sfn_state_machine.statemachine-take-snapshots-aurora.name} state machine"
   schedule_expression = "cron(${var.backup_schedule})"
   is_enabled = true
@@ -531,7 +531,7 @@ resource "aws_cloudwatch_event_target" "cloudwatch_event_rule-backup-target" {
 resource "aws_cloudwatch_event_rule" "cloudwatch_event_rule-share" {
   count = var.sharesnapshots == "true" ? 1 : 0
 
-  name        = "${var.name}-cloudwatch_event_rule-share"
+  name        = "${var.name}-cloudwatch-event-rule-share"
   description = "Triggers the ${aws_sfn_state_machine.statemachine-take-snapshots-aurora.name} state machine"
   schedule_expression = "cron(/10 * * * ? *)"
   is_enabled = true
@@ -551,7 +551,7 @@ resource "aws_cloudwatch_event_target" "cloudwatch_event_rule-share-target" {
 resource "aws_cloudwatch_event_rule" "cloudwatch_event_rule-delete" {
   count = var.delete_oldsnapshots == "true" ? 1 : 0
 
-  name = "${var.name}-cloudwatch_event_rule-delete"
+  name = "${var.name}-cloudwatch-event-rule-delete"
   description = "Triggers the ${aws_sfn_state_machine.statemachine-delete-snapshots-aurora[0].name} state machine"
   schedule_expression = "cron(0 /1 * * ? *)"
   is_enabled = true
