@@ -521,7 +521,7 @@ resource "aws_cloudwatch_event_rule" "cloudwatch_event_rule-backup" {
   tags = var.tags
 }
 
-resource "aws_cloudwatch_event_target" "ccloudwatch_event_rule-backup-target" {
+resource "aws_cloudwatch_event_target" "cloudwatch_event_rule-backup-target" {
   target_id = "Target1"
   rule      = aws_cloudwatch_event_rule.cloudwatch_event_rule-backup.id
   arn       = aws_sfn_state_machine.statemachine-take-snapshots-aurora.id
